@@ -1,0 +1,40 @@
+version: '2'
+services:
+  wordpress:
+    build:
+      context: ./docker
+      dockerfile: Wordpress
+    ports:
+      - 127.0.0.1:9998:80 # change ip if required
+      - 127.0.0.1:9999:443 # change ip if required
+    volumes:
+      - ./docker/config/php.conf.uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./src:/var/www/html/wp-content/plugins/woocommerce-strike-gateway
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: password
+    depends_on:
+      - db
+    networks:
+      - wordpress-network
+  db:
+    image: mysql:latest
+    ports:
+      - 127.0.0.1:3306:3306
+    command: [
+        '--default_authentication_plugin=mysql_native_password',
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci'
+    ]
+    volumes:
+      - ./wp-data:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      - wordpress-network
+networks:
+  wordpress-network:
+      driver: bridge
