@@ -33,17 +33,30 @@ return apply_filters('wc_strike_settings',
 			'default'     => '',
 			'desc_tip'    => false,
 		),
+		'webhook' => array(
+			'title'       => __('Your shop webhook', 'woocommerce-strike'),
+			'type'        => 'text',
+			'custom_attributes' => array('readonly' => 'readonly'),
+			'description' => __('Save this url in your <a href="https://strike.acinq.co/dashboard/account/hooks" target="_blank">Strike account</a> to help Strike notify your shop when a payment is received.', 'woocommerce-strike'),
+			'default'     => _(home_url('/') . '?wc-api=WC_Gateway_Strike', 'woocommerce-strike'),
+			'desc_tip'    => false,
+		),
+		'sandbox' => array(
+			'title' 			=> __('Sandbox', 'woocommerce-strike'),
+			'type'  			=> 'title',
+			'description' => __('This section controls the Strike sandbox mode for Testnet.', 'woocommerce-strike')
+		),
 		'testmode' => array(
-			'title'       => __('Test mode', 'woocommerce-strike'),
+			'title'       => __('Enable test mode', 'woocommerce-strike'),
 			'label'       => __('Payments will be made over TESTNET, coins hold no value.', 'woocommerce-strike'),
 			'type'        => 'checkbox',
-			'description' => __('If you enable test mode, you will interact with the <strong>TEST</strong> Strike API, and payments will be made for TESTNET. Don\'t use this in production!!', 'woocommerce-strike'),
+			'description' => __('If you enable test mode, you will interact with the <strong>Sandbox</strong> Strike API, and payments will be made for Testnet. Don\'t use this in production!!', 'woocommerce-strike'),
 			'default'     => 'no'
 		),
 		'test_secret_key' => array(
 			'title'       => __('Test mode Secret Key', 'woocommerce-strike'),
 			'type'        => 'text',
-			'description' => __('Use the secret key provided by the  <strong>TEST</strong> Strike environment', 'woocommerce-strike'),
+			'description' => __('Use the secret key provided by the  <strong>Sandbox</strong> Strike environment', 'woocommerce-strike'),
 			'default'     => '',
 			'desc_tip'    => false,
 		),
