@@ -21,7 +21,7 @@
   });
   
   function poll_order_paid() {
-    $.get('<?php echo home_url('/') ?>/?wc-api=WC_Gateway_Strike', { id: <?php echo $order->get_id() ?>})
+    $.get('/?wc-api=WC_Gateway_Strike', { id: <?php echo $order->get_id() ?>, order_key: '<?php echo $order->get_order_key() ?>' })
     .success((code, state, res) => {
       if (res.responseJSON === true) {
         document.location = <?php echo json_encode($order->get_checkout_order_received_url()) ?>

@@ -262,14 +262,22 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 				WC_Strike::log(sprintf(__('received incorrect notification that will be ignored', 'woocommerce-strike')));
 			}
 		} else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-			if (isset($_GET['id'])) {
+			if (isset($_GET['id']) && isset($_GET['order_key'])) {
 				$order_id = $_GET['id'];
-				$order = wc_get_order($order_id);
-				if ($order->is_paid()) {
-					wp_send_json(true);
+				$order_key = $_GET['order_key'];
+				$order_id_check = wc_get_order_id_by_order_key($order_key);
+				if ($order_id_check != 0 && $order_id == $order_id_check) {
+					$order = wc_get_order($order_id);
+					if ($order->is_paid()) {
+						wp_send_json(true);
+					} else {
+						wp_send_json(false);
+					}
 				} else {
 					wp_send_json(false);
 				}
+			} else {
+				wp_send_json(false);
 			}
 		}
 		exit();
