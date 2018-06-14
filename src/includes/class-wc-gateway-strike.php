@@ -241,7 +241,7 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$body = json_decode(file_get_contents('php://input'));
 			if (isset($body->object) && $body->object == 'event' && isset($body->data) && isset($body->data->id)) {
-				$charge_id = $body->data->id;
+				$charge_id = sanitize_text_field($body->data->id);
 				WC_Strike::log(sprintf(__('received charge=%s payment notification', 'woocommerce-strike'), $charge_id));
 				$order = $this->get_order_for_charge($charge_id);
 				if ($order !== false) {
@@ -263,8 +263,8 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 			}
 		} else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			if (isset($_GET['id']) && isset($_GET['order_key'])) {
-				$order_id = $_GET['id'];
-				$order_key = $_GET['order_key'];
+				$order_id = sanitize_text_field($_GET['id']);
+				$order_key = sanitize_text_field($_GET['order_key']);
 				$order_id_check = wc_get_order_id_by_order_key($order_key);
 				if ($order_id_check != 0 && $order_id == $order_id_check) {
 					$order = wc_get_order($order_id);
