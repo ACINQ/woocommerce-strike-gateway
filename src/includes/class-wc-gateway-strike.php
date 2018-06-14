@@ -27,6 +27,8 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 		// Get setting values.
 		$this->title                  = $this->get_option('title');
 		$this->description            = $this->get_option('description');
+		$this->show_howto           	= 'yes' === $this->get_option('show_howto');
+		$this->howto            			= $this->get_option('howto');
 		$this->enabled                = $this->get_option('enabled');
 		$this->strike_image           = $this->get_option('strike_image', '');
 		$this->live_secret_key        = $this->get_option('live_secret_key');

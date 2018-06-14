@@ -4,7 +4,9 @@
     <li class="woocommerce-order-overview__order order">Amount to pay with Lightning:<strong><br /><?php echo esc_html(number_format($amount_satoshi / (1000 * 100 * 1000), 8)) ?> BTC</strong></li>
     <li class="woocommerce-order-overview__order order">Scan this QR code with a Lightning wallet:<strong><br /><canvas id="wc_strike_canvas_paymentrequest"></canvas></strong></li>
     <li class="woocommerce-order-overview__order order">Or use the raw invoice:<strong><?php echo esc_html($payment_request) ?></strong></li>
-    <li class="woocommerce-order-overview__order order">Looking for a lightning wallet?<strong><a href="https://acinq.co/">Visit this website</a></strong></li>
+    <?php if ($this->show_howto) {
+      echo '<li class="woocommerce-order-overview__order order">How do I pay this?<div class="wc_strike_walletslist">' . ($this->howto) . '</div></li>';
+    } ?>
   </ul>
 </div>
 

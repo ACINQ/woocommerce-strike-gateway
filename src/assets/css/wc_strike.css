@@ -5,3 +5,9 @@
 .wc_strike_textbreak {
 	word-break: break-all;
 }
+.wc_strike_walletslist {
+	margin-top: 5px;
+	font-weight: normal;
+	font-size: 1em;
+	text-transform: none;
+}
