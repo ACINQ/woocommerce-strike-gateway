@@ -62,7 +62,7 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 	 * @param bool $plain_text
 	 */
 	public function email_instructions ($order, $sent_to_admin, $plain_text = false) {
-		if (!$sent_to_admin && $this->id === $order->payment_method && $order->has_status('pending')) {
+		if (!$sent_to_admin && $this->id === $order->get_payment_method() && $order->has_status('pending')) {
 			echo wpautop(wptexturize('Thanks for your trust.')) . PHP_EOL;
 		}
 	}
@@ -169,7 +169,7 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 			return array('result' => 'success', 'redirect' => $this->get_return_url($order));
 		} catch (Exception $e) {
 			wc_add_notice($e->getMessage(), 'error' );
-			WC_Strike::log(sprintf(__('Error: %s', 'woocommerce-strike'), $e->getMessage()));
+			$this->log(sprintf(__('Error: %s', 'woocommerce-strike'), $e->getMessage()));
 			return array('result' => 'fail', 'redirect' => '');
 		}
 	}
@@ -189,11 +189,11 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 
 	public function process_response($response, $order) {
 		// Store charge data
-		update_post_meta($order->id, '_strike_charge_id', $response->id);
-		update_post_meta($order->id, '_strike_payment_hash', $response->payment_hash);
-		update_post_meta($order->id, '_strike_payment_request', $response->payment_request);
-		update_post_meta($order->id, '_strike_amount_satoshi', $response->amount_satoshi);
-		update_post_meta($order->id, '_transaction_id', $response->id);
+		update_post_meta($order->get_id(), '_strike_charge_id', $response->id);
+		update_post_meta($order->get_id(), '_strike_payment_hash', $response->payment_hash);
+		update_post_meta($order->get_id(), '_strike_payment_request', $response->payment_request);
+		update_post_meta($order->get_id(), '_strike_amount_satoshi', $response->amount_satoshi);
+		update_post_meta($order->get_id(), '_transaction_id', $response->id);
 		// add a note to the order
 		$message = sprintf(__('Lightning payment is pending (charge: %s)', 'woocommerce-strike'), $response->id);
 		$order->add_order_note($message);
@@ -228,10 +228,10 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 		$order_id = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = '_strike_charge_id' AND meta_value = %s", $charge_id));
 		if ($order_id > 0) {
 			$order = wc_get_order($order_id);
-			WC_Strike::log(sprintf(__('found order=%s', 'woocommerce-strike'), json_encode($order)));
+			$this->log(sprintf(__('found order=%s', 'woocommerce-strike'), json_encode($order)));
 			return $order;
 		}
-		WC_Strike::log(sprintf(__('order could not be found for charge=%s', 'woocommerce-strike'), $charge_id));
+		$this->log(sprintf(__('order could not be found for charge=%s', 'woocommerce-strike'), $charge_id));
 		return false;
 	}
 
@@ -244,7 +244,7 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 			$body = json_decode(file_get_contents('php://input'));
 			if (isset($body->object) && $body->object == 'event' && isset($body->data) && isset($body->data->id)) {
 				$charge_id = sanitize_text_field($body->data->id);
-				WC_Strike::log(sprintf(__('received charge=%s payment notification', 'woocommerce-strike'), $charge_id));
+				$this->log(sprintf(__('received charge=%s payment notification', 'woocommerce-strike'), $charge_id));
 				$order = $this->get_order_for_charge($charge_id);
 				if ($order !== false) {
 					if ($order->has_status('pending')) {
@@ -252,16 +252,16 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 						if ($verification->paid) {
 							$order->payment_complete();
 							wc_reduce_stock_levels($order->get_id());
-							WC_Strike::log(sprintf(__('order has been completed, paid by charge %s.', 'woocommerce-strike'), $charge_id));
+							$this->log(sprintf(__('order has been completed, paid by charge %s.', 'woocommerce-strike'), $charge_id));
 						} else {
-							WC_Strike::log(sprintf(__('order=%s with charge=%s does not exist in Strike or has not been paid yet', 'woocommerce-strike'), $order->id, $charge_id));
+							$this->log(sprintf(__('order=%s with charge=%s does not exist in Strike or has not been paid yet', 'woocommerce-strike'), $order->get_id(), $charge_id));
 						}
 					} else {
-						WC_Strike::log(sprintf(__('order=%s has already been paid', 'woocommerce-strike'), $order->id));
+						$this->log(sprintf(__('order=%s has already been paid', 'woocommerce-strike'), $order->get_id()));
 					}
 				}
 			} else {
-				WC_Strike::log(sprintf(__('received incorrect notification that will be ignored', 'woocommerce-strike')));
+				$this->log(sprintf(__('received incorrect notification that will be ignored', 'woocommerce-strike')));
 			}
 		} else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			if (isset($_GET['id']) && isset($_GET['order_key'])) {
@@ -293,7 +293,7 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 	 * @return array|WP_Error
 	 */
 	public function create_charge($body) {
-		WC_Strike::log($this->endpoint . ' POST charge=' . print_r($body, true));
+		$this->log($this->endpoint . ' POST charge=' . print_r($body, true));
 		$response = wp_remote_post(
 			$this->endpoint . '/charges',
 			array(
@@ -306,9 +306,9 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 		);
 
 		$response_status = wp_remote_retrieve_response_code($response);
-		WC_Strike::log( "Response Status: " . print_r( $response_status, true));
+		$this->log( "Response Status: " . print_r( $response_status, true));
 		if (!($response_status >= 200 && $response_status < 300) || is_wp_error($response) || empty($response['body'])) {
-			WC_Strike::log("Error Response: " . print_r( $response, true));
+			$this->log("Error Response: " . print_r( $response, true));
 			return new WP_Error('strike_error', __('There was a problem connecting to the payment gateway.', 'woocommerce-strike'));
 		}
 		$parsed_response = json_decode($response['body']);
@@ -327,7 +327,7 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 	 * @return array|WP_Error
 	 */
 	public function get_charge($charge_id) {
-		WC_Strike::log($this->endpoint . ' GET charge=' . $charge_id);
+		$this->log($this->endpoint . ' GET charge=' . $charge_id);
 		$response = wp_remote_get(
 			$this->endpoint . '/charges/' . $charge_id,
 			array(
@@ -339,9 +339,9 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 		);
 
 		$response_status = wp_remote_retrieve_response_code($response);
-		WC_Strike::log('response status: ' . print_r($response_status, true));
+		$this->log('response status: ' . print_r($response_status, true));
 		if (!($response_status >= 200 && $response_status < 300) || is_wp_error($response) || empty($response['body'])) {
-			WC_Strike::log("error in response: " . print_r($response, true));
+			$this->log("error in response: " . print_r($response, true));
 			return new WP_Error('strike_error', __('There was a problem connecting to the payment gateway.', 'woocommerce-strike'));
 		}
 		$parsed_response = json_decode($response['body']);
@@ -350,6 +350,10 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 		} else {
 			return $parsed_response;
 		}
+	}
+	
+	private function log($message) {
+		if ($this->logging) WC_Strike::log($message);
 	}
 	
 }
