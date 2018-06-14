@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WooCommerce Strike Gateway for lightning
+ * Plugin Name: WooCommerce Strike Gateway for Lightning
  * Plugin URI: https://strike.acinq.co/woocommerce
  * Description: A gateway to pay with the Bitcoin Lightning Network through the Strike API.
  * Version: 0.0.1

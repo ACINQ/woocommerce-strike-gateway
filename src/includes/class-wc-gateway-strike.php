@@ -17,8 +17,8 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 	 */
 	public function __construct() {
 		$this->id                   = 'strike';
-		$this->method_title         = __('Woocommerce Strike Gateway for Lightning', 'woocommerce-strike');
-		$this->method_description   = __('This gateway interacts with the Strike API to generate a Lightning Network Payment Request for your customers, and display it as a QR code. Your shop is notified as soon when the payment is received.', 'woocommerce-strike');
+		$this->method_title         = __('WooCommerce Strike Gateway for Lightning', 'woocommerce-strike');
+		$this->method_description   = __('This gateway uses Strike to generate a Lightning Network Payment Request for your customers. Your shop is notified as soon when the payment is received.', 'woocommerce-strike');
 		$this->has_fields           = true;
 
 		// Load the form fields.
