@@ -251,7 +251,6 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 						$verification = $this->get_charge($charge_id);
 						if ($verification->paid) {
 							$order->payment_complete();
-							wc_reduce_stock_levels($order->get_id());
 							$this->log(sprintf(__('order has been completed, paid by charge %s.', 'woocommerce-strike'), $charge_id));
 						} else {
 							$this->log(sprintf(__('order=%s with charge=%s does not exist in Strike or has not been paid yet', 'woocommerce-strike'), $order->get_id(), $charge_id));
