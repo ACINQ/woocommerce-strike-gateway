@@ -87,6 +87,10 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 			echo '<div class="error"><p>' . sprintf(__('Strike is enabled, but the <a href="%s">force SSL option</a> is disabled; <strong>Strike will not be available</strong> as long as SSL is not enabled.', 'woocommerce-strike'), admin_url('admin.php?page=wc-settings&tab=checkout')) . '</p></div>';
 		}
 		
+		if (get_woocommerce_currency() !== 'BTC') {
+			echo '<div class="error"><p>' . sprintf(__('Strike is disabled because it only supports the Bitcoin currency, and your store is currently using %s.', 'woocommerce-strike'), get_woocommerce_currency()) . '</p></div>';	
+		}
+		
 		$setting_link = admin_url('admin.php?page=wc-settings&tab=checkout&section=' . $this->id);
 		if ($this->testmode) {
 			echo sprintf(__('<div class="notice notice-warning"><p><strong>Lightning Strike plugin is <a href="%s">in TEST mode</a>, payments with this gateway use TESTNET coins which hold no value!</strong></p></div>'), $setting_link);
@@ -102,14 +106,14 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 	/**
 	 * Check if this gateway is enabled.
 	 * 
-	 * - SSL must be activated.
+	 * - SSL must be activated and shop currency is bitcoin
 	 * - testing mode is ON and test_secret_key is set
 	 *   OR
 	 *   testing mode is off and live_secret_key is set
 	 */
 	public function is_available() {
 		if ('yes' === $this->enabled) {
-			if (!is_ssl()) {
+			if (!is_ssl() || get_woocommerce_currency() !== 'BTC') {
 				return false;
 			}
 			if ($this->is_mainnet_on()) {
