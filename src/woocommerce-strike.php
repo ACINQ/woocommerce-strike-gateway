@@ -62,23 +62,25 @@ class WC_Strike {
 		}
 		include_once(dirname(__FILE__) . '/includes/class-wc-gateway-strike.php');
 		add_filter('woocommerce_payment_gateways', array($this, 'add_gateways'));
+		add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
+	}
+
+	public function plugin_action_links( $links ) {
+		$plugin_links = array(
+			'<a href="admin.php?page=wc-settings&tab=checkout&section=strike">' . esc_html__( 'Settings', 'woocommerce-strike' ) . '</a>',
+			'<a href="mailto:strike@acinq.co">' . esc_html__( 'Contact us', 'woocommerce-gateway-stripe' ) . '</a>',
+		);
+		return array_merge( $plugin_links, $links );
 	}
 
 	/**
 	 * Add the gateways to WooCommerce
-	 *
-	 * @since 1.0.0
 	 */
 	public function add_gateways ( $methods ) {
 		$methods[] = 'WC_Gateway_Strike';
 		return $methods;
 	}
 
-	/**
-	 * Returns the *Singleton* instance of this class.
-	 *
-	 * @return Singleton The *Singleton* instance.
-	 */
 	public static function get_instance() {
 		if (null === self::$instance) {
 			self::$instance = new self();
@@ -86,20 +88,8 @@ class WC_Strike {
 		return self::$instance;
 	}
 
-	/**
-	 * Private clone method to prevent cloning of the instance of the
-	 * *Singleton* instance.
-	 *
-	 * @return void
-	 */
 	private function __clone() {}
 
-	/**
-	 * Private unserialize method to prevent unserializing of the *Singleton*
-	 * instance.
-	 *
-	 * @return void
-	 */
 	private function __wakeup() {}
 
 	public static function log($message) {
