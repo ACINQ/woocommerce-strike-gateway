@@ -82,9 +82,9 @@ class WC_Gateway_Strike extends WC_Payment_Gateway {
 			return;
 		}
 
-		// Show message if enabled and FORCE SSL is disabled and WordpressHTTPS plugin is not detected.
-		if ((function_exists('wc_site_is_https') && !wc_site_is_https()) && ('no' === get_option('woocommerce_force_ssl_checkout') && !class_exists('WordPressHTTPS'))) {
-			echo '<div class="error"><p>' . sprintf(__('Strike is enabled, but the <a href="%s">force SSL option</a> is disabled; <strong>Strike will not be available</strong> as long as SSL is not enabled.', 'woocommerce-strike'), admin_url('admin.php?page=wc-settings&tab=checkout')) . '</p></div>';
+		// SSL warning
+		if (!wc_checkout_is_https()) {
+			echo '<div class="notice notice-warning"><p>' . sprintf(__('Strike is enabled, but the checkout process is not secure. Make sure that you have a valid SSL certificate.', 'woocommerce-strike')) . '</p></div>';
 		}
 		
 		if (get_woocommerce_currency() !== 'BTC') {
