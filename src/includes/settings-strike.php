@@ -24,7 +24,7 @@ return apply_filters('wc_strike_settings',
 			'type'        => 'text',
 			'custom_attributes' => array('readonly' => 'readonly'),
 			'description' => __('Save this url in your <a href="https://strike.acinq.co/dashboard/account/hooks" target="_blank">Strike account</a> so that Strike can notify your shop when a payment is received.', 'woocommerce-strike'),
-			'default'     => _(home_url('/') . '?wc-api=WC_Gateway_Strike', 'woocommerce-strike'),
+			'default'     => __(home_url('/') . '?wc-api=WC_Gateway_Strike', 'woocommerce-strike'),
 			'desc_tip'    => false,
 		),
 		'logging' => array(
