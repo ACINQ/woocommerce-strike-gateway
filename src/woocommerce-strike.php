@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Strike Gateway for Lightning
  * Plugin URI: https://strike.acinq.co/woocommerce
  * Description: A gateway to pay with the Bitcoin Lightning Network through the Strike API.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: ACINQ
  * Author URI: https://acinq.co
  * Requires at least: 4.7
