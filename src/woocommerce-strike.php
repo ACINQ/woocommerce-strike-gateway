@@ -42,9 +42,12 @@ class WC_Strike {
 	 */
 	public function init () {
 		// Don't hook anything else in the plugin if we're in an incompatible environment
-		if (!function_exists('curl_init') && is_plugin_active(plugin_basename(__FILE__))) {
-			echo '<div class="notice notice-error">Strike Gateway: cURL is not installed.</strong></p></div>';
-			return;
+		if (!function_exists('curl_init')) {
+			require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+			if (is_plugin_active(plugin_basename(__FILE__))) {
+				echo '<div class="notice notice-error">Strike Gateway: cURL is not installed.</strong></p></div>';
+				return;
+			}
 		}
 
 		// Init the gateway itself
